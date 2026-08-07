@@ -4,6 +4,9 @@ header{
 footer{
     display: none;
 }
+.main-wrapper{
+    margin-top: 0;
+}
 .checkout-header{
     width: 100%;
     height: 80px;
@@ -20,10 +23,64 @@ footer{
         height: 100%;
     }
     .logo{
-        position: absolute;
-        left: 20px;
-        top: 50%;
-        transform: translateY(-50%);
+        display: flex;
+        align-items: end;
+        gap: 10px;
+        .compose{
+            width: 80px;
+            height: 46px;
+            position: relative;
+            .fra{
+                position: absolute;
+                left: 50%;
+                &.fra-1{
+                    width: 42px;
+                    top: 50%;
+                    transform: translate(-50%,-50%);
+                }
+    
+                &.fra-2{
+                    width: 64px;
+                    transform: translateX(-50%);
+                    bottom: 0;
+                    transition: all 0.3s;
+                }
+    
+                &.fra-3{
+                    width: 80px;
+                    transform: translateX(-50%);
+                    bottom: 0;
+                    transition: all 0.3s;
+                }
+            }
+        }
+        .intact{
+            .xenical-logo{
+                width: 120px;
+            }
+            .text{
+                font-size: 12px;
+                margin-top: 3px;
+                &.white{
+                    color: #fff;
+                }
+            }
+        }
+        
+        &:hover{
+            .compose{
+                .fra{
+                    &.fra-2{
+                        opacity: .2;
+                        transition: all 0.6s;
+                    }
+                    &.fra-3{
+                        opacity: .2;
+                        transition: all 0.3s;
+                    }
+                }
+            }
+        }
     }
     .page-title{
         text-align: center;
@@ -108,8 +165,6 @@ body{
                 height: 30px;
                 border: none;
                 border-bottom: 1px solid #D8D8D8;
-                font-size: 16px;
-                touch-action: manipulation;
                 &.focus,&:focus{
                     border-color: #ff9b3e;
                     +.shut{
@@ -142,14 +197,14 @@ body{
                 display: flex;
                 gap: 20px;
                 .form-radio{
-                    width: 100%;
+                    width: 200px;
                     
                     .radio-label{
                         display: flex;
                         align-items: center;
                         border-radius: 10px;
                         border: 1.5px solid #C4C4C4;
-                        padding: 0.6rem 1.2rem;
+                        padding: 0.6rem 0 0.6rem 1.2rem;
                         transition: all 0.15s;
                         .ana{
                             width: 2rem;
@@ -187,7 +242,6 @@ body{
                         .text{
                             margin-left: 10px;
                             font-size: 13px;
-                            letter-spacing: 0;
                             i{
                                 font-style: normal;
                             }
@@ -225,10 +279,9 @@ body{
                         background: #FFFFFF;
                         border-radius: 6px;
                         border: 1px solid #C4C4C4;
-                        font-size: 16px;
+                        font-size: 14px;
                         padding-left: 10px;
                         outline: none;
-                        touch-action: manipulation;
                     }
                 }
             }
@@ -319,8 +372,6 @@ body{
                 border: 1px solid #C4C4C4;
                 padding: 6px 10px;
                 font-family: "YaHei Consolas Hybrid";
-                font-size: 16px;
-                touch-action: manipulation;
                 &:focus{
                     border-color: #ff9b3e;
                 }
