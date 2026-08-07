@@ -1,14 +1,11 @@
-@extends('mobile.layout')
+@extends('mobile::layout')
 
 @section('style')
     @parent
     <link rel="stylesheet" href="{{ asset('static/mobile/less/index.css') }}?ver={{ config('app.asset_version') }}">
     <link rel="stylesheet" href="{{ asset('static/swiper4/swiper.min.css') }}?ver={{ config('app.asset_version') }}">
     <style>
-        /*.swiper-container {
-            height: 100vh;
-        }
-*/
+
         .swiper-slide {
             overflow: hidden;
         }
@@ -170,9 +167,6 @@
         .text-effect .p2{
             text-indent: -0.2rem;
         }
-        .text-effect .p2 .splitting .word .char{
-            padding: 0 0.4rem;
-        }
 
     </style>
 @stop
@@ -182,6 +176,7 @@
     <script src="{{ asset('static/swiper4/swiper.min.js') }}?ver={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('static/js/jquery.textAnimation.min.js') }}?ver={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('static/js/jquery.waypoints.min.js') }}?ver={{ config('app.asset_version') }}"></script>
+    <script src="{{ asset('static/js/jquery.textAnimation.min.js') }}?ver={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('static/js/jquery.marquee.min.js') }}?ver={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('static/js/jquery.parallax.js') }}?ver={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('static/js/countUp.min.js') }}?ver={{ config('app.asset_version') }}"></script>
@@ -293,6 +288,18 @@
             },
 
         })
+        window.addEventListener('load', function() {
+            setTimeout(function () {
+                $('#swiper5 .lazy').each(function () {
+                    var src = $(this).attr('data-original');
+                    if(src){
+                        $(this).attr('src',src);
+                        $(this).removeAttr('data-original');
+                    }
+                });
+            },100)
+
+        });
 /*        var mySwiper = new Swiper('#swiper5',{
             effect : 'coverflow',
             loop : true,
@@ -405,106 +412,6 @@
     </script>
 
     <script>
-
-        $(document).ready(function(){
-            const $ScrollWrap = $(window)
-            // 监听滚动停止
-            let t1 = 0;
-            let t2 = 0;
-            let timer = null; // 定时器
-            $ScrollWrap.on("touchstart", function(){
-
-                // 触摸开始 ≈ 滚动开始
-            })
-            $ScrollWrap.on("scroll", function(){
-                //$('.right-online-buy').addClass('slipOut')
-
-                // 滚动
-                clearTimeout(timer)
-                timer = setTimeout(isScrollEnd, 300)
-                t1 = $ScrollWrap.scrollTop()
-                if(t1<=0){
-
-                }else{
-
-                }
-            })
-            function isScrollEnd() {
-                t2 = $ScrollWrap.scrollTop();
-                if(t2<=0){
-                    //$('.right-online-buy').addClass('slipOut')
-                    //$('.right-online-buy a').css('opacity',0);
-                }else{
-                    if(t2 == t1){
-                        //$('.right-online-buy a').css('opacity',1);
-                        //$('.right-online-buy').removeClass('slipOut')
-
-                        clearTimeout(timer)
-                    }
-                }
-
-            }
-
-
-            var roll_status = 0;
-            headerEffect()
-            initialize();
-            $(window).scroll(function() {
-                headerEffect()
-            });
-            function headerEffect(){
-                let top = document.scrollingElement.scrollTop; //触发滚动条，记录数值
-                let banner_height = $('.video-wrap').height()-40;
-                let opacity = 1-(1-top/banner_height);
-                if(opacity >= 1){
-                    opacity = 1;
-                }
-
-                if(top>10){
-                    $('header').addClass('-show')
-                }else{
-                    $('header').removeClass('-show')
-                }
-
-
-                if(top<=0){
-                    //$('.online-buy a').css('opacity',1)
-                    //$('.online-buy').removeClass('slipOut')
-
-                    logo_compose(1,1);
-
-                }else{
-                    //$('.online-buy').addClass('slipOut')
-
-                    logo_compose(2,opacity);
-                }
-            }
-
-            function initialize(){
-                let top = document.scrollingElement.scrollTop; //触发滚动条，记录数值
-                /* if(top<=0){
-                    $('.online-buy').removeClass('slipOut')
-                    $('.right-online-buy a').css('opacity',0)
-
-                    $('.online-buy a').css('opacity',1)
-                }else{
-                    $('.online-buy').addClass('slipOut')
-                    $('.right-online-buy a').css('opacity',1)
-                    $('.online-buy a').css('opacity',0)
-
-                } */
-            }
-
-        })
-
-        function logo_compose(type,opacity){
-            if(type == 1){
-                $('.logo-img').attr('src','/static/img/mlogo1.webp?ver=1')
-            }else{
-                $('.logo-img').attr('src','/static/img/mlogo2.webp?ver=1')
-            }
-        }
-
         $('#use-num').waypoint(function(direction) {
             let demo = new CountUp('use-num',0, 100000,0,2,{
                 useEasing: true,
@@ -514,6 +421,13 @@
 
         }, {
             offset: '100%'
+        })
+        $('.chooseline').waypoint(function(direction) {
+
+            $('#ts-svg').addClass('ts-svg')
+
+        }, {
+            offset: '50%'
         })
     </script>
     <script>
@@ -545,242 +459,196 @@
 @stop
 
 @section('content')
-
-    {{--<div class="right-online-buy">
-        <a href="{{ url('product') }}"><i class="iconfont">&#xe811;</i>線上訂購</a>
-    </div>--}}
-    <section class="adv-section" data-track-section="hero" data-track-section-view data-track-section-label="首屏">
-        <div class="act-main">
-            <div class="video-wrap" style="height: 100vh">
-                <div class="swiper-container" id="swiper-video3">
-                    <div class="swiper-wrapper">
-                        <div class="swiper-slide">
-                            <div class="slide-inner" data-bind-text="text-banner-0">
-                                <video style="object-fit:cover" loop="" muted="" width="100%" height="100%" playsinline="" preload="none" poster="/static/video/poster1-m.webp">
-                                    <source src="{{ asset('static/video/m1.mp4') }}" type="video/mp4">
-                                </video>
-                            </div>
+    <div class="index-banner">
+        <p class="slogan" id="slogan-text"> 妳值得擁有更好的身材</p>  
+        <div class="video-wrap">
+            <div class="swiper-container" id="swiper-video3">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="slide-inner" data-bind-text="text-banner-0">
+                            <video style="object-fit:cover" loop="" muted="" width="100%" height="100%" playsinline="">
+                                <source src="{{ asset('static/video/m1.mp4') }}" type="video/mp4">
+                            </video>
                         </div>
-                        <div class="swiper-slide">
-                            <div class="slide-inner" data-bind-text="text-banner-1">
-                                <video style="object-fit:cover" loop="" muted="" width="100%" height="100%" playsinline="" preload="none" poster="/static/video/poster2-m.webp">
-                                    <source src="{{ asset('static/video/m2.mp4') }}" type="video/mp4">
-                                </video>
-                            </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="slide-inner" data-bind-text="text-banner-1">
+                            <video style="object-fit:cover" loop="" muted="" width="100%" height="100%" playsinline="" >
+                                <source src="{{ asset('static/video/m2.mp4') }}" type="video/mp4">
+                            </video>
                         </div>
-                        <div class="swiper-slide">
-                            <div class="slide-inner" data-bind-text="text-banner-2">
-                                <video style="object-fit:cover"  loop="" muted="" width="100%" height="100%" playsinline="" preload="none" poster="/static/video/poster3-m.webp">
-                                    <source src="{{ asset('static/video/m3.mp4') }}" type="video/mp4">
-                                </video>
-                            </div>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="slide-inner" data-bind-text="text-banner-2">
+                            <video style="object-fit:cover"  loop="" muted="" width="100%" height="100%" playsinline="">
+                                <source src="{{ asset('static/video/m3.mp4') }}" type="video/mp4">
+                            </video>
                         </div>
                     </div>
                 </div>
-
-                <div class="shade-mask"></div>
-
-                <div class="video-slogan">
-                    <div class="text-effect" id="text-banner-0">
-                        <p class="p1" id="banner-p1">{{ app('cache.config')->get('home_banner_0_title', '安全減肥') }}</p>
-                        <p class="p2" id="banner-p2">{{ app('cache.config')->get('home_banner_0_title_en', 'Safety') }}&nbsp;</p>
-                        <p class="p3" id="banner-p3">美國FDA、歐盟EMA等權威認證</p>
-                        <p class="p3" id="banner-p4">僅作用於腸道、對人體安全</p>
-                    </div>
-
-                    <div class="text-effect" id="text-banner-1" >
-                        <p class="p1" id="banner-p1">{{ app('cache.config')->get('home_banner_1_title', '有效減肥') }}</p>
-                        <p class="p2" id="banner-p2">{{ app('cache.config')->get('home_banner_1_title_en', 'Effective') }}&nbsp;</p>
-                        <p class="p3" id="banner-p3">歐盟核准上市28年</p>
-                        <p class="p3" id="banner-p4">醫師首選口服合法減肥藥</p>
-                    </div>
-
-                    <div class="text-effect" id="text-banner-2" >
-                        <p class="p1" id="banner-p1">{{ app('cache.config')->get('home_banner_2_title', '健康減肥') }}</p>
-                        <p class="p2" id="banner-p2">{{ app('cache.config')->get('home_banner_2_title_en', 'Healthy') }}&nbsp;</p>
-                        <p class="p3" id="banner-p3">{{ app('cache.config')->get('home_banner_2_desc', '無須斷食動刀，健康排出油脂') }}</p>
-                    </div>
+            </div>
+            <div class="video-slogan">
+                <div class="text-effect" id="text-banner-0">
+                    <p class="p1" id="banner-p1">Safety&nbsp;</p>
+                    <p class="p2" id="banner-p2">安全減肥</p>
+                    <p class="p3" id="banner-p3">歐盟EMA、美國FDA等</p>
+                    <p class="p3" id="banner-p4">多國權威認證對人體安全</p>
                 </div>
 
-                <div class="pill1"></div>
-                <div class="pill2"></div>
+                <div class="text-effect" id="text-banner-1" >
+                    <p class="p1" id="banner-p1">Effective&nbsp;</p>
+                    <p class="p2" id="banner-p2">有效减肥</p>
+                    <p class="p3" id="banner-p3">台灣上市22年</p>
+                    <p class="p3" id="banner-p4">醫師首選唯一合法減肥藥</p>
+                </div>
 
+                <div class="text-effect" id="text-banner-2" >
+                    <p class="p1" id="banner-p1">Healthy&nbsp;</p>
+                    <p class="p2" id="banner-p2">健康减肥</p>
+                    <p class="p3" id="banner-p3">無須斷食動刀，健康排出油脂</p>
+                </div>
+            </div>
 
-                <div class="progress"></div>
-            </div>
-            <div class="slogan-wrap">
-                <div class="back-img"><img src="{{ asset('static/img/ellipse.webp') }}" alt="" loading="lazy" decoding="async"></div>
-                <p class="text" id="slogan-text"> 妳滿意現在的身材嗎？</p>
-            </div>
+            <div class="progress"></div>
         </div>
+             
+    </div>
 
+    <div class="wrapper about">
         <div class="about-main">
-            <div class="head wow animate__animated animate__fadeInUp">
-                <h1 class="title">{!! app('cache.config')->get('home_about_title') !!}</h1>
-                <p class="sub">WHAT IS XENICAL</p>
-            </div>
-            <div class="text wow animate__animated animate__fadeInUp">
-                {!! app('cache.config')->get('home_about') !!}
-            </div>
+            <p class="en-title">About XENICAL</p>
+            <p class="title">{!! app('cache.config')->get('home_about_title') !!}</p>
+            <div class="text wow animate__animated animate__fadeInUp">{!! app('cache.config')->get('home_about') !!}</div>
             <div class="cumulative wow animate__animated animate__fadeInUp">
-                <p class="p1">銷量超過</p>
+                <p class="p1">上市至今銷量突破</p>
                 <p class="p2"><span class="num" id="use-num">100,000</span><span class="em">萬億顆<br>以上</span></p>
             </div>
+            <a class="go-btn" href="/about">查看羅氏鮮詳細介紹<i class="iconfont">&#xe684;</i></a>
         </div>
-    </section>
 
-    <section class="section suit-section" data-track-section="suit" data-track-section-view data-track-section-label="适用对象">
-        <div class="head wow animate__animated animate__fadeInUp">
-            <h2 class="title">適用族群</h2>
-            <p class="sub">FOR WHO</p>
-        </div>
-        <div class="main wow animate__animated animate__fadeInUp">
+        <p class="suit-title wow animate__animated animate__fadeInUp">適用族群</p>
+        <div class="suit-content wow animate__animated animate__fadeInUp">
             @foreach($for_people as $item)
                 <div class="item">
-                    <div class="box">
-                        <img src="{{ asset('uploads/'.($item->img ?? '')) }}" alt="{{ $item->text ?? '' }}" loading="lazy" decoding="async">
-                    </div>
+                    <img src="{{ asset('uploads/'.$item->img) }}" alt="{{ $item->text }}">
                     <p class="text">{{ $item->text }}</p>
                 </div>
             @endforeach
         </div>
-    </section>
+    </div>
 
 
-    <section class="section affect-section" data-track-section="how" data-track-section-view data-track-section-label="作用原理">
+    <div class="wrapper how white-bg">
         <div class="head wow animate__animated animate__fadeInUp">
-            <h2 class="title">羅氏鮮作用機轉</h2>
-            <p class="sub">HOW TO WORK</p>
+            <p class="en-title">Mechanism of Action</p>
+            <p class="title">羅氏鮮作用機轉</p>
         </div>
-        <div class="main ">
-            <div class="row ">
-                <div class="picker wow animate__animated animate__fadeInUp key-1">
-                    <span class="min-fat left-more" style="left: 12.3rem;top: 7.7rem;"></span>
-                    <span class="min-fat left-more" style="left: 13.2rem;top: 11.6rem;"></span>
-                    <span class="min-fat right-more" style="right: 12.1rem;top: 8.6rem;"></span>
-                    <span class="min-fat right-more" style="right: 12.3rem;top: 6.2rem;"></span>
-                </div>
-                <div class="introduce wow animate__animated animate__fadeInUp">
-                    {!! app('cache.config')->get('how_to_work_1') !!}
-                </div>
-            </div>
 
-            <div class="row">
-                <div class="picker wow animate__animated animate__fadeInUp key-2">
-                    <span class="max-fat bottom-more" style="bottom: 9.5rem;left: 16rem"></span>
-                </div>
-                <div class="introduce int-2 wow animate__animated animate__fadeInUp">
-                    {!! app('cache.config')->get('how_to_work_2') !!}
-                </div>
+        <div class="row">
+            <div class="picker wow animate__animated animate__fadeInUp key-1">
+                <span class="min-fat left-more" style="left: 14.3rem;top: 7.7rem;"></span>
+                <span class="min-fat left-more" style="left: 13.2rem;top: 11.6rem;"></span>
+                <span class="min-fat right-more" style="right: 11.1rem;top: 8.6rem;"></span>
+                <span class="min-fat right-more" style="right: 11.3rem;top: 6.2rem;"></span>
+                <img src="/static/img/how-1.jpg" alt="">
             </div>
+            <p class="introduce wow animate__animated animate__fadeInUp">
+                {!! app('cache.config')->get('how_to_work_1') !!}
+            </p>
         </div>
-        <div class="decorate de-1"></div>
-        <div class="decorate de-2"></div>
-    </section>
+        <div class="row">
+            <div class="picker wow animate__animated animate__fadeInUp key-2">
+                <span class="max-fat bottom-more" style="bottom: 9.5rem;left: 16rem"></span>
+                <img src="/static/img/how-2.jpg" alt="">
+            </div>
+            <p class="introduce int-2 wow animate__animated animate__fadeInUp">
+                {!! app('cache.config')->get('how_to_work_2') !!}
+            </p>
+        </div>
+    </div>
 
-    <section class="section buy-section orange-bg" data-track-section="product" data-track-section-view data-track-section-label="商品方案">
+    <div class="wrapper buy-online">
         <div class="head wow animate__animated animate__fadeInUp">
-            <h2 class="title">如何訂購羅氏鮮</h2>
-            <p class="sub">HOW TO BUY</p>
+            <p class="en-title">Buy Online</p>
+            <p class="title">線上訂購羅氏鮮</p>
+            <p class="desc">羅氏鮮台灣官方線上訂購官網，無須醫師處方箋，歐洲原廠進口，購買組合裝可享受優惠折扣</p>
         </div>
-        <div class="main">
-            {{--<div class="officina wow animate__animated animate__fadeInUp">
-                <div class="card">
-                    <p class="title">線下通路</p>
-                    <p class="sub">
-                        羅氏鮮已上市全台各大藥局<br>
-                        統一定價NT$1,800<br>
-                        訂購者必須出示醫師處方箋
-                    </p>
-                </div>
-                <div class="drug">藥</div>
-            </div>--}}
 
-            <div class="officina wow animate__animated animate__fadeInUp">
-                <div class="card">
-                    <p class="title">線上通路</p>
-                    <p class="sub">
-                        台灣羅氏鮮官方線上訂購<br>
-                        無須醫師處方箋，歐洲原廠進口<br>
-                        訂購組合懶人包可享受超值優惠
-                    </p>
+        <div class="goods wow animate__animated animate__fadeInUp">
+            @foreach($products as $item)
+            <div class="item">
+                <img class="goods-img" src="{{ asset('uploads/'.$item->img) }}?ver={{ config('app.asset_version') }}" alt="羅氏鮮">
+                <div class="goods-title">
+                    <p class="label"><span style="letter-spacing: -1px;margin-right: 4px;">{{ $item->name_en }}</span>{{ $item->name }}</p>
+                    <p >{{ $item->quantity }}{{ $item->id == 1 ? '盒標準裝' : '盒優惠裝' }}</span></p>
                 </div>
-                <div class="shop-back"><img src="{{ asset('static/img/shop2.webp') }}" alt="線上訂購" loading="lazy" decoding="async"></div>
+                <p class="price-sec">
+                    @php
+                        $diff = $item->market_price - $item->price;
+                        $percent = $item->market_price > 0 ? round(($diff / $item->market_price) * 100) : 0;
+                    @endphp
+                    <span class="price"><span class="twd">NT$</span>{{ number_format(round($item->price)) }}</span>
+                    @if($diff > 0)
+                        <span class="market-price"><span class="twd">NT$</span>{{ number_format($item->market_price) }}</span>
+                    @endif
+                    <span class="discount">
+                        @if($diff > 0)
+                            優惠{{ $percent }}%
+                        @else
+                            官方售價
+                        @endif
+                    </span>
+                </p>
+                <div class="btns">
+                    <a class="shop-btn go-btn" href="{{ url('checkout/'.$item->id) }}"  data-observer="立即訂購-{{ $item->name }}">立即訂購<i class="iconfont">&#xe684;</i></a>
+                    <a class="go-info btn-ef2" href="{{ url('product/'.$item->id) }}" data-observer="詳情-{{ $item->name }}">詳情</a>
+                </div>
             </div>
+            @endforeach
+        </div>
 
-            <div class="product wow animate__animated animate__fadeInUp">
-                <div class="card">
-                    @foreach($products as $item)
-                    <div class="goods">
-                        <div class="col">
-                            <p class="title">羅氏鮮{{ $item->sub_name }}</p>
-                            <p class="price">
-                                <span class="now">NT${{ number_format(round($item->price)) }}</span>
+    </div>
 
-                                <span class="jetso">
-                                    @if($item->market_price > $item->price)
-                                        優惠${{ $item->market_price - $item->price }}
-                                    @else
-                                        官方標準售價
-                                    @endif
-                                </span>
-                            </p>
-                        </div>
-                        <div class="col">
-                            <a class="checkout-btn" href="{{ url('checkout/'.$item->id) }}" data-track-section="product" data-track-name="home.product.checkout" data-observer="立即訂購-{{ $item->name }}">立即訂購</a>
-                        </div>
-                    </div>
+    <div class="wrapper reviews white-bg">
+        <div class="wow animate__animated animate__fadeInUp">
+            <p class="en-title">Buyer Reviews</p>
+            <p class="title">健康減肥瘦身<br>看看他們怎麽說</p>
+        </div>
+
+        @if($trade_show)
+            <div class="swiper-container animate__animated animate__fadeInUp" id="swiper5">
+                <div class="swiper-wrapper">
+                    @foreach(array_values($trade_show) as $key=>$item)
+                        @if($key>5)
+                            @break
+                        @endif
+                            <div class="swiper-slide word-item">
+                                <img class="lazy" data-original="{{ asset_upload($item['img']) }}" alt="{{ $item['text'] }}">
+                            </div>
                     @endforeach
                 </div>
-
-                {{--<a class="more" href="{{ url('product') }}">查看剩下10種優惠組合方案</a>--}}
             </div>
+        @endif
 
-        </div>
-    </section>
+    </div>
 
-    <section class="section word-section news-section" data-track-section="lunbo" data-track-section-view data-track-section-label="用户见证">
-        <div class="head wow animate__animated animate__fadeInUp">
-            <h2 class="title">健康減肥瘦身<br>看看他們怎麼說</h2>
-            <p class="sub">HOW TO WORK</p>
-        </div>
-        <div class="main wow animate__animated animate__fadeInUp">
-            @if($trade_show)
-                <div class="swiper-container" id="swiper5">
-                    <div class="swiper-wrapper">
-                        @foreach(array_values($trade_show) as $key=>$item)
-                            @if($key>5)
-                                @break
-                            @endif
-                                <div class="swiper-slide word-item">
-                                    <div class="box"><img src="{{ asset_upload($item['img']) }}" alt="{{ $item['text'] }}" loading="lazy" decoding="async"></div>
-                                </div>
-                        @endforeach
+    <div class="wrapper tdee">
+        <p class="en-title wow animate__animated animate__fadeInUp">BMI Calculation</p>
+        <p class="title wow animate__animated animate__fadeInUp">BMI計算器</p>
+        <p class="desc wow animate__animated animate__fadeInUp">
+            {!! str_replace(PHP_EOL,'<br>',app('cache.config')->get('slim_about')) !!}
+        </p>
+        <a class="go-btn wow animate__animated animate__fadeInUp" href="{{ url('compute') }}">測一測你的BMI<i class="iconfont">&#xe684;</i></a>
+    </div>
 
-
-                    </div>
-                </div>
-            @endif
-
-        </div>
-    </section>
-
-    <section class="section eval-section orange-bg" data-track-section="tdee" data-track-section-view data-track-section-label="计算器">
-        <div class="head wow animate__animated animate__fadeInUp">
-            <h2 class="title">你瞭解你的身體嗎？</h2>
-        </div>
-        <div class="main wow animate__animated animate__fadeInUp">
-            <div class="text ">
-                {!! str_replace(PHP_EOL,'<br>',app('cache.config')->get('slim_about')) !!}
-            </div>
-            <a class="btn" href="{{ url('compute') }}" data-track-section="tdee" data-track-name="home.tdee.btn" data-observer="測試你的數據按鈕">測試一下你的數據</a>
-        </div>
-    </section>
-
-    <section class="section solve-section" data-track-section="timeline" data-track-section-view data-track-section-label="时间轴">
-        <div class="head wow animate__animated animate__fadeInUp">
-            <h2 class="title">我們致力於解決你的困擾</h2>
-
+    <div class="wrapper chooseline white-bg">
+        <div class="wow animate__animated animate__fadeInUp" id="ts-svg">
+            <p class="en-title">Help You Lose Weight</p>
+            <p class="title">我們致力於解決你的困擾</p>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 170" preserveAspectRatio="none">
+                <path d="M7.7,145.6C109,125,299.9,116.2,401,121.3c42.1,2.2,87.6,11.8,87.3,25.7">
+                </path>
+            </svg>
         </div>
         <div class="main wow animate__animated animate__fadeInUp" id="loopWrap">
             <div class="group">
@@ -793,37 +661,52 @@
 
             </div>
         </div>
-    </section>
+    </div>
 
-    <section class="section faq-section orange-bg" data-track-section="fqa" data-track-section-view data-track-section-label="FAQ">
-        <div class="head wow animate__animated animate__fadeInUp">
-            <h2 class="title">營養師解答</h2>
-            <p class="sub">Q&A</p>
+    <div class="wrapper faq">
+        <div class="wow animate__animated animate__fadeInUp">
+            <p class="en-title">Q&A</p>
+            <p class="title">減肥常見疑問</p>
         </div>
-        <div class="main">
-            <div class="question wow animate__animated animate__fadeInUp">
-                @foreach($faqs as $faq)
-                    <div class="item" data-faq-id="{{ $loop->iteration }}">
-                        <p class="q-title">Q：{{ $faq->questions }}<a class="shrink" href="javascript:;"><i class="iconfont">&#xe775;</i></a></p>
-                        <p class="q-desc">{!! $faq->answers !!}</p>
 
+        @foreach($faqs as $key=>$faq)
+            @if($key>5)
+                @break
+            @endif
+            <div class="faq-item wow animate__animated animate__fadeInUp">
+                <div class="faq-question">
+                    <span class="question-text">Q：{{ $faq->questions }}</span>
+                    <i class="iconfont faq-icon">&#xeca2;</i>
+                </div>
+                <p class="faq-answer">A：{{ $faq->answers }}</p>
+            </div>
+        @endforeach
+
+
+    </div>
+
+    <div class="wrapper news white-bg" style="background-image: url({{ asset('uploads/'.app('cache.config')->get('promote_image')) }})">
+        <div class="wow animate__animated animate__fadeInUp">
+            <p class="en-title">Slimming Blog</p>
+            <p class="title">BMI減肥知識專欄</p>
+        </div>
+        @foreach($news as $item)
+            <div class="item wow animate__animated animate__fadeInUp">
+                <a class="info" href="{{ url('news/'.$item->id) }}">
+                    <div class="newsInfoIdxBox">
+                        <p class="newsDateBox">
+                            <span class="day">{{ $item->release_at->format('d') }}</span>
+                            <span class="ym">{{ $item->release_at->format('M') }}</span>
+                        </p>
+                        <p class="news-title">{{ $item->title }}</p>
                     </div>
-                @endforeach
+                    <p class="sub">
+                        {{ \Illuminate\Support\Str::limit($item->brief?$item->brief:strip_tags($item->content),120) }}
+                    </p>
+                    <span class="go">閱讀全文<i class="iconfont">&#xe684;</i></span>
+                </a>
             </div>
-        </div>
-    </section>
-
-    <section class="section epilogue-section" data-track-section="epilogue" data-track-section-view data-track-section-label="底部CTA">
-        <div class="main">
-            <div class="img-wrap wow animate__animated animate__fadeInUp">
-                <div class="box epilogue-img" style="background-image: url({{ asset('uploads/'.app('cache.config')->get('promote_image')) }})"></div>
-            </div>
-
-            <div class="text">
-                <p class="p1">這個夏天</p>
-                <p class="p2">你準備好了嗎？</p>
-            </div>
-        </div>
-    </section>
+        @endforeach
+    </div>
 
 @endsection

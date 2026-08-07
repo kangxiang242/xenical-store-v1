@@ -1,4 +1,4 @@
-@extends('mobile.layout')
+@extends('mobile::layout')
 
 @section('style')
     @parent
@@ -132,9 +132,9 @@
 
 @section('script')
     @parent
-    <script src="{{ asset('static/js/sweetalert2.js') }}?ver={{ config('app.asset_version') }}"></script>
     <script>
         $('#banner').remove();
+
 
         if(flash_data){
             Swal.fire({
@@ -149,10 +149,6 @@
                 showConfirmButton:false,
             })
         }
-        document.addEventListener('DOMContentLoaded', function () {
-            if (!window.XenicalTracker) return;
-            XenicalTracker.conversion('view_order', { order_no: @json($order->no ?? ''), status: 'success' }, 'order_success');
-        });
     </script>
 @stop
 
@@ -180,7 +176,7 @@
                             @foreach($order->products as $item)
 
                                 <div class="product clearfix">
-                                    <div class="goods-img"><img src="{{ asset_upload($item->product_img) }}" alt="{{ $item->product_name }}" loading="lazy" decoding="async"></div>
+                                    <div class="goods-img"><img src="{{ asset_upload($item->product_img) }}" alt="{{ $item->product_name }}"></div>
                                     <div class="goods-info">
                                         <p class="goods-name">{{ $item->product_name }}</p>
                                         <p class="goods-price">NT${{ round($item->total_price) }}</p>
@@ -205,7 +201,7 @@
 
                 <div class="item">
                     <div class="row">
-                        <div class="left">收件人姓名</div>
+                        <div class="left">收貨姓名</div>
                         <div class="right">{{ $order->name }}</div>
                     </div>
 
@@ -215,7 +211,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="left">電子信箱</div>
+                        <div class="left">電子郵箱</div>
                         <div class="right">{{ $order->email }}</div>
                     </div>
                 </div>
@@ -235,7 +231,7 @@
                                     超商(萊爾富) 取貨付款
                                 @endif
                             @else
-                                宅配 貨到付款
+                                快遞宅配 貨到付款
                             @endif
 
                         </div>
@@ -256,14 +252,14 @@
                         </div>
                     @endif
                     <div class="row">
-                        <div class="left">收件地址</div>
+                        <div class="left">收貨地址</div>
                         <div class="right">{{ $order->city.$order->county.$order->street.$order->address }}</div>
                     </div>
 
                     @if($order->delivery_type == 0)
                         <div class="row">
-                            <div class="left">收件方式</div>
-                            <div class="right">本人收件</div>
+                            <div class="left">收貨方式</div>
+                            <div class="right">本人收貨</div>
                         </div>
                     @endif
                     <div class="row">

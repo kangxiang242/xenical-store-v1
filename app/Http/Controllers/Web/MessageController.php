@@ -6,15 +6,14 @@ use App\Exceptions\MsgException;
 use App\Http\JsonResponse;
 use App\Http\Requests\MessageRequest;
 use App\Models\Faq;
-use App\Repositories\FaqRepository;
 use App\Repositories\MessageRepository;
 use Illuminate\Database\QueryException;
 
 class MessageController extends BaseController
 {
     public function index(){
-        $faqs = app(FaqRepository::class)->getByUri('message');
-        return template('message', ['faqs' => $faqs]);
+        $faqs = Faq::orderBy('sort','desc')->limit(3)->get();
+        return template('message',compact('faqs'));
     }
 
     /**

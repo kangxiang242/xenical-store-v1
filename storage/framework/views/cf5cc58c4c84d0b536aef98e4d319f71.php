@@ -30,7 +30,8 @@
 
         .splitting .word {
             display: inline-block;
-            overflow: hidden
+            overflow: hidden;
+            padding-right: 10px;
         }
 
         .splitting .char {
@@ -171,7 +172,6 @@
 
 <?php $__env->startSection('script'); ?>
     <?php echo \Illuminate\View\Factory::parentPlaceholder('script'); ?>
-    <script src="<?php echo e(asset('static/js/xie.js')); ?>?ver=<?php echo e(config('app.asset_version')); ?>"></script>
     <script src="<?php echo e(asset('static/js/jquery.textAnimation.min.js')); ?>?ver=<?php echo e(config('app.asset_version')); ?>"></script>
     <script src="<?php echo e(asset('static/js/jquery.waypoints.min.js')); ?>?ver=<?php echo e(config('app.asset_version')); ?>"></script>
     <script src="<?php echo e(asset('static/js/countUp.min.js')); ?>?ver=<?php echo e(config('app.asset_version')); ?>"></script>
@@ -186,7 +186,7 @@
         resizeVideo();
         function resizeVideo(){
 
-            var video_width = 1000+parseInt($('.suit').find('.wrapper').css('marginLeft'));
+            var video_width = 1000+parseInt($('.about.wrapper').css('marginLeft') || 0);
             $('.video-main').css('width',video_width);
             var left = $('.shop-btn').offset().left
             $('.shop-btn a').css('left',left+4);
@@ -259,7 +259,7 @@
             offset: '100%'
         })
 
-        $('.timeline').waypoint(function(direction) {
+        $('.chooseline').waypoint(function(direction) {
 
             $('#ts-svg').addClass('ts-svg')
 
@@ -285,30 +285,21 @@
         })
 
     </script>
-
-
-
-
     <script>
-        textAnimation("#text-banner-0 #banner-p1");
-        textAnimation("#text-banner-0 #banner-p2");
-        textAnimation("#text-banner-0 #banner-p3");
+        textAnimation("#text-banner-0 .text-effect-p1");
+        textAnimation("#text-banner-0 .text-effect-p2");
+        textAnimation("#text-banner-0 .text-effect-p3");
 
-        textAnimation("#text-banner-1 #banner-p1");
-        textAnimation("#text-banner-1 #banner-p2");
-        textAnimation("#text-banner-1 #banner-p3");
+        textAnimation("#text-banner-1 .text-effect-p1");
+        textAnimation("#text-banner-1 .text-effect-p2");
+        textAnimation("#text-banner-1 .text-effect-p3");
 
-        textAnimation("#text-banner-2 #banner-p1");
-        textAnimation("#text-banner-2 #banner-p2");
-        textAnimation("#text-banner-2 #banner-p3");
-
-
-
+        textAnimation("#text-banner-2 .text-effect-p1");
+        textAnimation("#text-banner-2 .text-effect-p2");
+        textAnimation("#text-banner-2 .text-effect-p3");
 
     </script>
     <script>
-
-
         var state = 0; //0表示没有进行动画过渡，1表示在进行动画过渡
         function rotate(dir) {
 
@@ -426,23 +417,6 @@
 
             }
         }
-
-
-        $('.question-show').click(function(){
-            var is_show = $(this).attr('data-show');
-            var height = $(this).find('.q-desc').height()+10+$(this).find('.q-title').height()
-            if(!is_show){
-                $(this).css('height',height);
-                $(this).attr('data-show',1);
-                $(this).find('.q-icon').html('&#xeca2;');
-            }else{
-                $(this).css('height',$(this).find('.q-title').height());
-                $(this).removeAttr('data-show');
-                $(this).find('.q-icon').html('&#xe775;');
-            }
-
-        });
-
     </script>
 
     <script>
@@ -512,24 +486,22 @@
 
     </script>
 
-
-
     <script>
-        $(document).scroll(function() {
-            var scroH = $(document).scrollTop();  //滚动高度
-            var viewH = $(window).height();  //可见高度
-            var contentH = $(document).height();  //内容高度
+        /* $(document).scroll(function() {
+            var scroH = $(document).scrollTop();
+            var viewH = $(window).height();
+            var contentH = $(document).height();
 
             if(scroH> 10){
                 $('header').addClass('header-index')
 
             }
 
-            if(scroH <10){  //距离顶部大于100px时
+            if(scroH <10){
                 $('header').removeClass('header-index')
             }
 
-        });
+        }); */
 
 
 
@@ -560,283 +532,272 @@
         });
 
     </script>
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            function debounce(func, wait) {
+                let timeout;
+                return function() {
+                    const context = this;
+                    const args = arguments;
+                    clearTimeout(timeout);
+                    timeout = setTimeout(() => func.apply(context, args), wait);
+                };
+            }
 
+            const faqItems = document.querySelectorAll('.faq-item');
+
+            function calculateHeights() {
+                faqItems.forEach(item => {
+                    const question = item.querySelector('.faq-question');
+                    const answer = item.querySelector('.faq-answer');
+
+                    const wasOpen = item.classList.contains('open');
+                    if (!wasOpen) {
+                        item.classList.add('open');
+                        item.offsetHeight;
+                    }
+
+                    const questionHeight = question.offsetHeight;
+                    const fullHeight = item.offsetHeight;
+
+                    item.style.setProperty('--collapsed-height', `${questionHeight}px`);
+                    item.style.setProperty('--expanded-height', `${fullHeight}px`);
+
+                    if (!wasOpen) {
+                        item.classList.remove('open');
+                    }
+                });
+            }
+
+            calculateHeights();
+
+            if (faqItems.length > 0) {
+                faqItems[0].classList.add('open');
+            }
+
+            faqItems.forEach(item => {
+                const question = item.querySelector('.faq-question');
+                question.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    const isOpen = item.classList.contains('open');
+                    
+                    faqItems.forEach(otherItem => {
+                        if (otherItem !== item && otherItem.classList.contains('open')) {
+                            otherItem.classList.remove('open');
+                        }
+                    });
+
+                    if (isOpen) {
+                        item.classList.remove('open');
+                    } else {
+                        item.classList.add('open');
+                    }
+                });
+            });
+
+            window.addEventListener('resize', debounce(calculateHeights, 250));
+        });
+    </script>
 <?php $__env->stopSection(); ?>
 
 
 <?php $__env->startSection('content'); ?>
-
-    <section class="index-banner" data-track-section="hero" data-track-section-view data-track-section-label="首屏Banner">
-        <div class="logo-cont">
-            <a href="<?php echo e(url('/')); ?>">
-                <div class="logo-wrap">
-                    <div class="place">
-                        <div class="compose">
-                            <img class="fra-1" src="<?php echo e(asset('static/img/lg/fraw-1.png')); ?>" alt="logo" decoding="async">
-                            <img class="fra-2" src="<?php echo e(asset('static/img/lg/fraw-2.png')); ?>" alt="logo" decoding="async">
-                            <img class="fra-3"  src="<?php echo e(asset('static/img/lg/fraw-3.png')); ?>" alt="logo" decoding="async">
+    <div class="index-banner">
+        <p class="slogan"> 妳值得擁有更好的身材</p>
+        <div class="video-main">
+            <div class="swiper-container" id="swiper-video3">
+                <div class="swiper-wrapper">
+                    <div class="swiper-slide">
+                        <div class="slide-inner" data-bind-text="text-banner-0">
+                            <video id="video1" loop style="object-fit:cover"  muted="" width="100%" height="100%" playsinline="">
+                                <source src="<?php echo e(asset('static/video/1.mp4')); ?>" type="video/mp4">
+                            </video>
                         </div>
-                        <div class="intact">
-                            <img class="xenical-logo" src="<?php echo e(asset('static/img/lg/xenical-2.png')); ?>" alt="xenical" decoding="async">
-                            <p class="text white">全球領先健康減肥藥</p>
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="slide-inner" data-bind-text="text-banner-1">
+                            <video style="object-fit:cover" loop muted="" width="100%" height="100%" playsinline="">
+                                <source src="<?php echo e(asset('static/video/2.mp4')); ?>" type="video/mp4">
+                            </video>
                         </div>
-
+                    </div>
+                    <div class="swiper-slide">
+                        <div class="slide-inner" data-bind-text="text-banner-2">
+                            <video style="object-fit:cover" loop  muted="" width="100%" height="100%" playsinline="">
+                                <source src="<?php echo e(asset('static/video/3.mp4')); ?>" type="video/mp4">
+                            </video>
+                        </div>
                     </div>
                 </div>
-            </a>
-        </div>
-            <div class="video-main">
-                <div class="video-wrap">
-                    <div class="swiper-container" id="swiper-video3">
-                        <div class="swiper-wrapper">
-                            <div class="swiper-slide">
-                                <div class="slide-inner" data-bind-text="text-banner-0">
-                                    <video id="video1" loop style="object-fit:cover"  muted="" width="100%" height="100%" playsinline="" preload="none" poster="/static/video/poster1.webp">
-                                        <source src="<?php echo e(asset('static/video/1.mp4')); ?>" type="video/mp4">
-                                    </video>
-
-                                </div>
-                            </div>
-
-                            <div class="swiper-slide">
-                                <div class="slide-inner" data-bind-text="text-banner-1">
-                                    <video style="object-fit:cover" loop muted="" width="100%" height="100%" playsinline="" preload="none" poster="/static/video/poster2.webp">
-                                        <source src="<?php echo e(asset('static/video/2.mp4')); ?>" type="video/mp4">
-                                    </video>
-                                </div>
-                            </div>
-
-                            <div class="swiper-slide">
-                                <div class="slide-inner" data-bind-text="text-banner-2">
-                                    <video style="object-fit:cover" loop  muted="" width="100%" height="100%" playsinline="" preload="none" poster="/static/video/poster3.webp">
-                                        <source src="<?php echo e(asset('static/video/3.mp4')); ?>" type="video/mp4">
-                                    </video>
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-
-                    <div class="shade-mask"></div>
-
-                    <div class="pill1"></div>
-                    <div class="pill2"></div>
-
-                    <div class="progress"></div>
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if(!is_googlebot()): ?>
-                    <div class="text-effect" id="text-banner-0">
-                        <p class="p1" id="banner-p1"><?php echo e(app('cache.config')->get('home_banner_0_title', '安全減肥')); ?></p>
-                        <p class="p2" id="banner-p2"><?php echo e(app('cache.config')->get('home_banner_0_title_en', 'Safe')); ?>&nbsp;</p>
-                        <p class="p3" id="banner-p3"><?php echo e(app('cache.config')->get('home_banner_0_desc', '歐盟EMA、美國FDA等多國權威認證對人體安全')); ?></p>
-                    </div>
-
-                    <div class="text-effect" id="text-banner-1" >
-                        <p class="p1" id="banner-p1"><?php echo e(app('cache.config')->get('home_banner_1_title', '有效減肥')); ?></p>
-                        <p class="p2" id="banner-p2"><?php echo e(app('cache.config')->get('home_banner_1_title_en', 'Effective')); ?>&nbsp;</p>
-                        <p class="p3" id="banner-p3"><?php echo e(app('cache.config')->get('home_banner_1_desc', '台灣上市22年，醫師首選唯一合法減肥藥')); ?></p>
-                    </div>
-
-                    <div class="text-effect" id="text-banner-2" >
-                        <p class="p1" id="banner-p1"><?php echo e(app('cache.config')->get('home_banner_2_title', '健康減肥')); ?></p>
-                        <p class="p2" id="banner-p2"><?php echo e(app('cache.config')->get('home_banner_2_title_en', 'Healthy')); ?>&nbsp;</p>
-                        <p class="p3" id="banner-p3"><?php echo e(app('cache.config')->get('home_banner_2_desc', '無須斷食動刀，健康排出油脂')); ?></p>
-                    </div>
-                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                </div>
-
             </div>
-        <div class="vh">
-            <div class="wrapper">
-                <div class="leg">
-                    <div class="shop-btn"><a class="btn-ef1" href="<?php echo e(url('product')); ?>" data-track-section="home.hero" data-track-name="home.hero.order_btn" data-observer="頂部-線上訂購">線上訂購</a></div>
-                    <div class="slogan"> 妳,滿意妳現在的身材嗎？</div>
-                    <div class="shuidi"></div>
-                </div>
-
+            <div class="progress"></div>
+            <div class="text-effect" id="text-banner-0">
+                <p class="text-effect-p1">Safety&nbsp;</p>
+                <p class="text-effect-p2">安全減肥</p>
+                <p class="text-effect-p3">歐盟EMA、美國FDA等多國權威認證對人體安全</p>
             </div>
-
+            <div class="text-effect" id="text-banner-1" >
+                <p class="text-effect-p1">Effective&nbsp;</p>
+                <p class="text-effect-p2">有效减肥</p>
+                <p class="text-effect-p3">台灣上市22年，醫師首選唯一合法減肥藥</p>
+            </div>
+            <div class="text-effect" id="text-banner-2" >
+                <p class="text-effect-p1">Healthy&nbsp;</p>
+                <p class="text-effect-p2">健康减肥</p>
+                <p class="text-effect-p3">無須斷食動刀，健康排出油脂</p>
+            </div>
         </div>
+    </div>
 
-    </section>
-
-
-    <section class="about-section" data-track-section="about" data-track-section-view data-track-section-label="全球销量">
-        <div class="wrapper about">
-            <div class="row ab-main wow animate__animated animate__fadeInUp"  >
-                <h1 class="ab-title"><?php echo app('cache.config')->get('home_about_title'); ?></h1>
-                <p class="sub">WHAT IS XENICAL</p>
+    <div class="about wrapper column">
+        <div class="about-main wow animate__animated animate__fadeInUp">
+            <p class="en-title">About XENICAL</p>
+            <h2 class="title"><?php echo app('cache.config')->get('home_about_title'); ?></h2>
+            <div class="text"><?php echo app('cache.config')->get('home_about'); ?></div>
+            <div class="xl-main">
+                <p class="xl-title">上市至今銷量突破</p>
                 <div class="text">
-                    <?php echo app('cache.config')->get('home_about'); ?>
-
+                    <span class="num" id="use-num">100,000</span><span class="em">萬億顆<br>以上</span>
                 </div>
             </div>
-            <div class="row xl-main wow animate__animated animate__fadeInUp">
-                <h2 class="xl-title">銷量突破</h2>
-                <div class="text" >
-                    <span class="num" id="use-num">100,000</span><span class="em" >萬億顆<br>以上</span>
-                </div>
-            </div>
+            <a class="go-btn" href="/about">查看羅氏鮮詳細介紹<i class="iconfont">&#xe684;</i></a>
         </div>
-    </section>
-
-    <section class="suit" data-track-section="suit" data-track-section-view data-track-section-label="适用对象">
-        <div class="wrapper">
-            <div class="suit-head wow animate__animated animate__fadeInUp" >
-                <h2 class="title">適用族群</h2>
-            </div>
-            <div class="suit-content wow animate__animated animate__fadeInUp">
-                <?php
-                    $people_key=0;
-                ?>
-                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $for_people; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+        <p class="title wow animate__animated animate__fadeInUp">適用族群</p>
+        <div class="suit-content wow animate__animated animate__fadeInUp">
+            <?php
+                $people_key=0;
+            ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $for_people; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="item" data-parallax='{"y": <?php echo e($people_key%2==0?'-':''); ?>100}'>
-                    <div class="box">
-                        <img src="<?php echo e(asset('uploads/'.($item->img ?? ''))); ?>" alt="<?php echo e($item->text ?? ''); ?>" loading="lazy" decoding="async">
-                    </div>
+                    <img src="<?php echo e(asset('uploads/'.$item->img)); ?>" alt="<?php echo e($item->text); ?>">
                     <p class="text"><?php echo e($item->text); ?></p>
                 </div>
-                    <?php
-                        $people_key++;
-                    ?>
+                <?php
+                    $people_key++;
+                ?>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+    </div>
+
+    <div class="how wrapper column">
+        <div class="modal wow animate__animated animate__fadeInUp">
+            <p class="en-title">Mechanism of Action</p>
+            <h2 class="title">羅氏鮮作用機轉</h2>
+        </div>
+        <div class="how-body">
+            <div class="how-resolve">
+                <div class="picker appear-1">
+                    <span class="min-zf left-more" style="left: 182px;top: 122px;"></span>
+                    <span class="min-zf left-more" style="left: 195px;top: 186px;"></span>
+                    <span class="min-zf right-more" style="right: 166px;top: 93px;"></span>
+                    <span class="min-zf right-more" style="right: 148px;top: 138px;"></span>
+                    <img src="/static/img/how-1.jpg" alt="">
+                </div>
+                <p class="introduce appear-2"><?php echo app('cache.config')->get('how_to_work_1'); ?></p>
+            </div>
+
+            <div class="how-resolve restrain ">
+                <div class="picker appear-3">
+                    <span class="max-zf bottom-more" style="bottom: 108px;left: 236px"></span>
+                    <img src="/static/img/how-2.jpg" alt="">
+                </div>
+                <p class="introduce appear-4"><?php echo app('cache.config')->get('how_to_work_2'); ?></p>
+            </div>
+
+        </div>
+    </div>
+
+    <div class="product wrapper column">
+        <div class="modal wow animate__animated animate__fadeInUp">
+            <p class="en-title">Buy Online</p>
+            <h2 class="title">線上訂購羅氏鮮</h2>
+            <p class="desc">羅氏鮮台灣官方線上訂購官網，無須醫師處方箋，歐洲原廠進口，購買組合裝可享受優惠折扣</p>
+        </div>
+
+        <div class="goods wow animate__animated animate__fadeInUp">
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                <div class="item">
+                    <img class="goods-img" src="<?php echo e(asset('uploads/'.$item->img)); ?>?ver=<?php echo e(config('app.asset_version')); ?>" alt="羅氏鮮">
+                    <div class="info">
+                        <div>
+                            <p class="label"><span style="letter-spacing: -1px;margin-right: 4px;"><?php echo e($item->name_en); ?></span><?php echo e($item->name); ?></p>
+                            <p class="goods-title"><?php echo e($item->quantity); ?><?php echo e($item->id == 1 ? '盒標準裝' : '盒優惠裝'); ?></p>
+                        </div>
+                        <div class="buy-sec">
+                            <p class="price-sec">
+                                <?php
+                                    $diff = $item->market_price - $item->price;
+                                    $percent = $item->market_price > 0 ? round(($diff / $item->market_price) * 100) : 0;
+                                ?>
+
+                                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($diff > 0): ?>
+                                    <span class="market-price"><span class="twd">NT$</span><?php echo e(number_format($item->market_price)); ?></span>
+                                <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                <span class="price"><span class="twd">NT$</span><?php echo e(number_format(round($item->price))); ?></span>
+                                <span class="discount">
+                                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($diff > 0): ?>
+                                        優惠<?php echo e($percent); ?>%
+                                    <?php else: ?>
+                                        官方售價
+                                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+                                </span>
+                            </p>
+                            <a class="shop-btn go-btn" href="<?php echo e(url('checkout/'.$item->id)); ?>"  data-observer="立即訂購-<?php echo e($item->name); ?>">立即訂購<i class="iconfont">&#xe684;</i></a>
+                            <a class="go-info btn-ef2" href="<?php echo e(url('product/'.$item->id)); ?>" data-observer="詳情-<?php echo e($item->name); ?>">詳情</a>
+                        </div>
+                    </div>
+                </div>
+            <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+        </div>
+
+    </div>
+
+    <div class="reviews wrapper column">
+        <div class="modal wow animate__animated animate__fadeInUp">
+            <p class="en-title">Buyer Reviews</p>
+            <h2 class="title">健康減肥瘦身<br>看看他們怎麽說</h2>
+        </div>
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($trade_show): ?>
+        <div class="reviews-body wow animate__animated animate__fadeInUp">
+            <div class="evaluate">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = array_values($trade_show); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($key>5): ?>
+                        <?php break; ?>
+                    <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+
+                    <div class="sef <?php echo e($key==0?"sef-activate":""); ?>">
+                        <img src="<?php echo e(asset_upload($item['img'])); ?>" alt="<?php echo e(isset($item['text'])?$item['text']:''); ?>">
+                    </div>
+
                 <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
             </div>
+            <div class="switch prev-btn"><a href="javascript:;" onclick="rotate(1)"><i class="iconfont">&#xe779;</i></a></div>
+            <div class="switch next-btn"><a href="javascript:;" onclick="rotate(2)"><i class="iconfont">&#xe775;</i></a></div>
         </div>
-    </section>
+        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    </div>
 
-    <section class="how" data-track-section="how" data-track-section-view data-track-section-label="作用原理">
-        <div class="wrapper">
-            <div class="modal wow animate__animated animate__fadeInUp">
-                <h2 class="title">羅氏鮮作用機轉</h2>
-                <p class="sub">HOW TO WORK</p>
-            </div>
-            <div class="how-body">
-                <div class="how-resolve">
-                    <div class="picker appear-1">
-                        <span class="min-zf left-more" style="left: 182px;top: 122px;"></span>
-                        <span class="min-zf left-more" style="left: 195px;top: 186px;"></span>
-                        <span class="min-zf right-more" style="right: 134px;top: 93px;"></span>
-                        <span class="min-zf right-more" style="right: 124px;top: 138px;"></span>
+    <div class="tdee wrapper column">
+        <p class="en-title wow animate__animated animate__fadeInUp">BMI Calculation</p>
+        <h2 class="title wow animate__animated animate__fadeInUp">BMI計算器</h2>
+        <p class="tdee-about  wow animate__animated animate__fadeInUp">
+            <?php echo str_replace(PHP_EOL,'<br>',app('cache.config')->get('slim_about')); ?>
 
-                    </div>
-                    <div class="introduce appear-2">
-                        <?php echo app('cache.config')->get('how_to_work_1'); ?>
+        </p>
+        <a class="go-btn" href="<?php echo e(url('compute')); ?>" data-observer="測試你的數據按鈕">測一測你的BMI<i class="iconfont">&#xe684;</i></a>
 
-                    </div>
-                </div>
+    </div>
 
-                <div class="how-resolve restrain ">
-                    <div class="picker appear-3">
-                        <span class="max-zf bottom-more" style="bottom: 108px;left: 236px"></span>
-                    </div>
-                    <div class="introduce appear-4">
-                        <?php echo app('cache.config')->get('how_to_work_2'); ?>
-
-                    </div>
-                </div>
-
-            </div>
+    <div class="chooseline wrapper column">
+        <div class="modal wow animate__animated animate__fadeInUp" id="ts-svg">
+            <p class="en-title">Help You Lose Weight</p>
+            <h2 class="title">羅氏鮮幫助妳解決減肥困擾</h2>
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 170" preserveAspectRatio="none">
+                <path d="M7.7,145.6C109,125,299.9,116.2,401,121.3c42.1,2.2,87.6,11.8,87.3,25.7">
+                </path>
+            </svg>
         </div>
-        <div class="decorate de-1"></div>
-        <div class="decorate de-2"></div>
-    </section>
-
-    <section class="product" data-track-section="product" data-track-section-view data-track-section-label="商品方案">
-        <div class="wrapper">
-            <div class="modal wow animate__animated animate__fadeInUp">
-                <h2 class="title">如何訂購羅氏鮮</h2>
-                <p class="sub">HOW TO BUY</p>
-            </div>
-            <div class="product-body">
-                <div class="shop">
-                    <div class="introduce order wow animate__animated animate__fadeInUp">
-                        <p class="title">線上通路</p>
-                        <p class="desc">
-                            台灣羅氏鮮官方線上訂購<br>
-                            <span style="background-color: #ffebd9">無須醫師處方箋</span>，歐洲原裝進口<br>
-                            訂購組合懶人包可享受超值優惠
-                        </p>
-                        <img class="shop-img" src="<?php echo e(asset('static/img/shop2.webp')); ?>" alt="羅氏鮮" loading="lazy" decoding="async">
-                    </div>
-                    <div class="goods wow animate__animated animate__fadeInUp">
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $products; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-
-                            <div class="item">
-                                <p class="title">羅氏鮮<?php echo e($item->sub_name); ?></p>
-                                <p class=green-mask>
-                                    <span class="price">NT$<?php echo e(number_format(round($item->price))); ?></span>
-                                    <span class="box">
-                                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($item->market_price-$item->price > 0): ?>
-                                            優惠NT$<?php echo e(number_format(round($item->market_price-$item->price))); ?>
-
-                                        <?php else: ?>
-                                            官方標準售價
-                                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?></span>
-                                </p>
-                                <a class="shop-btn btn-ef2" href="<?php echo e(url('checkout/'.$item->id)); ?>"  data-observer="立即訂購-<?php echo e($item->name); ?>">立即訂購</a>
-                            </div>
-                        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    </div>
-
-                </div>
-            </div>
-        </div>
-    </section>
-
-
-    <section class="lunbo" data-track-section="lunbo" data-track-section-view data-track-section-label="用户见证">
-        <div class="wrapper" style="">
-            <div class="modal wow animate__animated animate__fadeInUp">
-                <h2 class="title">健康減肥瘦身<br>看看他們怎麼說</h2>
-            </div>
-            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($trade_show): ?>
-            <div class="lunbo-body wow animate__animated animate__fadeInUp">
-                <div class="evaluate">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = array_values($trade_show); $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($key>5): ?>
-                            <?php break; ?>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-
-                        <div class="sef <?php echo e($key==0?"sef-activate":""); ?>"><img src="<?php echo e(asset_upload($item['img'])); ?>" alt="<?php echo e(isset($item['text'])?$item['text']:''); ?>" loading="lazy" decoding="async"></div>
-
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                </div>
-                <div class="switch prev-btn"><a href="javascript:;" onclick="rotate(1)"><i class="iconfont">&#xe779;</i></a></div>
-                <div class="switch next-btn"><a href="javascript:;" onclick="rotate(2)"><i class="iconfont">&#xe775;</i></a></div>
-            </div>
-            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-        </div>
-    </section>
-
-
-    <section class="tdee" data-track-section="tdee" data-track-section-view data-track-section-label="计算器入口">
-        <div class="wrapper" style="">
-            <div class="modal wow animate__animated animate__fadeInUp">
-                <h2 class="title">你瞭解你的身體嗎？</h2>
-
-            </div>
-            <div class="tdee-about  wow animate__animated animate__fadeInUp">
-                <?php echo str_replace(PHP_EOL,'<br>',app('cache.config')->get('slim_about')); ?>
-
-            </div>
-            <div class="tdee-body ">
-                <a class="tdee-btn" href="<?php echo e(url('compute')); ?>" data-track-section="tdee" data-track-name="home.tdee.btn" data-observer="測試你的數據按鈕"><span class="text">測試你的數據</span></a>
-            </div>
-        </div>
-
-    </section>
-
-    <section class="timeline" data-track-section="timeline" data-track-section-view data-track-section-label="时间轴">
-        <div class="wrapper" style="">
-            <div class="modal wow animate__animated animate__fadeInUp" id="ts-svg">
-                <h2 class="title">我們致力於解決你的困擾</h2>
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 170" preserveAspectRatio="none">
-                    <path d="M7.7,145.6C109,125,299.9,116.2,401,121.3c42.1,2.2,87.6,11.8,87.3,25.7">
-                    </path>
-                </svg>
-            </div>
-        </div>
-        <div class="timeline-body wow animate__animated animate__fadeInUp" id="loopWrap">
+        <div class="chooseline-body wow animate__animated animate__fadeInUp" id="loopWrap">
             <div class="group">
                 <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $trouble; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
                 <div class="item">
@@ -847,40 +808,60 @@
 
             </div>
         </div>
-    </section>
+    </div>
 
-    <section class="fqa" data-track-section="fqa" data-track-section-view data-track-section-label="FAQ精选">
-        <div class="wrapper" style="">
-            <div class="modal wow animate__animated animate__fadeInUp">
-                <h2 class="title">醫師問答</h2>
-                <p class="sub">Q&A</p>
-            </div>
-            <div class="fqa-body">
-                <div class="question wow animate__animated animate__fadeInUp">
-                    <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $faqs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$faq): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
-                        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($key>5): ?>
-                            <?php break; ?>
-                        <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
-                    <div class="item question-show">
-                        <p class="q-title">Q：<?php echo e($faq->questions); ?></p>
-                        <p class="q-desc"><?php echo $faq->answers; ?></p>
-                        <i class="q-icon iconfont">&#xe775;</i>
-                    </div>
-                    <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+    <div class="fqa wrapper column">
+        <div class="modal wow animate__animated animate__fadeInUp">
+            <p class="en-title">Q&A</p>
+            <h2 class="title">減肥常見疑問</h2>
+        </div>
+
+        <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $faqs; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $key=>$faq): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+            <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php if($key>5): ?>
+                <?php break; ?>
+            <?php endif; ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            <div class="faq-item wow animate__animated animate__fadeInUp">
+                <div class="faq-question">
+                    <span class="question-text">Q：<?php echo e($faq->questions); ?></span>
+                    <i class="iconfont faq-icon">&#xeca2;</i>
                 </div>
+                <p class="faq-answer">A：<?php echo e($faq->answers); ?></p>
             </div>
-        </div>
-    </section>
+        <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
 
-    <section class="epilogue" data-track-section="epilogue" data-track-section-view data-track-section-label="底部CTA">
-        <div class="epilogue-body">
-            <div class="image-wrap wow animate__animated animate__fadeInUp">
-                <figure class="box epilogue-img" style="background-image: <?php echo e(app('cache.config')->get('promote_image') ? 'url('.asset('uploads/'.app('cache.config')->get('promote_image')).')' : ''); ?>"></figure>
-            </div>
-            <div class="text" style="opacity: 0"><p class="p1" id="epilogue-p1">這個夏天</p><p class="p2" id="epilogue-p2">你準備好了嗎</p></div>
-            <a class="btn btn-ef1" href="<?php echo e(url('product')); ?>" data-track-section="epilogue" data-track-name="home.epilogue.order_btn" data-observer="立即訂購按鈕">立即訂購</a>
+    </div>
+
+    <div class="news">
+        <div class="wow animate__animated animate__fadeInUp">
+            <p class="en-title">Slimming Blog</p>
+            <h2 class="title">減肥知識專欄</h2>
         </div>
-    </section>
+        <div class="news-main">
+            <div class="image-wrap wow animate__animated animate__fadeInUp">
+                <div class="box epilogue-img" style="background-image: url(<?php echo e(asset('uploads/'.app('cache.config')->get('promote_image'))); ?>)"></div>
+            </div>
+            <div class="news-wrap">
+                <?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if BLOCK]><![endif]--><?php endif; ?><?php $__currentLoopData = $news; $__env->addLoop($__currentLoopData); foreach($__currentLoopData as $item): $__env->incrementLoopIndices(); $loop = $__env->getLastLoop(); ?>
+                    <div class="item wow animate__animated animate__fadeInUp">
+                        <a class="info" href="<?php echo e(url('news/'.$item->id)); ?>">
+                            <div class="newsInfoIdxBox">
+                                <p class="newsDateBox">
+                                    <span class="day"><?php echo e($item->release_at->format('d')); ?></span>
+                                    <span class="ym"><?php echo e($item->release_at->format('M')); ?></span>
+                                </p>
+                                <p style="font-weight: 500;"><?php echo e($item->title); ?></p>
+                            </div>
+                            <p class="sub">
+                                <?php echo e(\Illuminate\Support\Str::limit($item->brief?$item->brief:strip_tags($item->content),120)); ?>
+
+                            </p>
+                            <span class="go">閱讀全文<i class="iconfont">&#xe684;</i></span>
+                        </a>
+                    </div>
+                <?php endforeach; $__env->popLoop(); $loop = $__env->getLastLoop(); ?><?php if(\Livewire\Mechanisms\ExtendBlade\ExtendBlade::isRenderingLivewireComponent()): ?><!--[if ENDBLOCK]><![endif]--><?php endif; ?>
+            </div>
+        </div>
+    </div>
 <?php $__env->stopSection(); ?>
 
-<?php echo $__env->make('web.layout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/mac-2312-r/workspace/wwwroot/纤体-減肥/xenical-store/xenical-store-v1/resources/views/web/index.blade.php ENDPATH**/ ?>
+<?php echo $__env->make('web::layout', array_diff_key(get_defined_vars(), ['__data' => 1, '__path' => 1]))->render(); ?><?php /**PATH /Users/mac-2312-r/workspace/wwwroot/纤体-減肥/xenical-store/xenical-store-v1/resources/views/web/index.blade.php ENDPATH**/ ?>

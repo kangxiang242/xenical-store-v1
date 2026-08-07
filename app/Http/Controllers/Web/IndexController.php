@@ -11,15 +11,8 @@ use Illuminate\Http\Request;
 class IndexController extends Controller
 {
     public function index(ProductRepository $productRepository,Request $request){
-        // 首頁商品區：僅顯示指定 id（順序 2 → 3 → 5）
-        $homeProductIds = [2, 3, 5];
-        $allProducts = $productRepository->all();
-        $products = collect($homeProductIds)
-            ->map(function ($id) use ($allProducts) {
-                return $allProducts->firstWhere('id', $id);
-            })
-            ->filter();
-        $faqs = app(FaqRepository::class)->getByUri('/')->slice(0, 6);
+        $products = $productRepository->limit(7)->all();
+        $faqs = app(FaqRepository::class)->limit(6)->all();
 
 
         $for_people_untreated = app('cache.config')->get('for_people');
@@ -36,6 +29,10 @@ class IndexController extends Controller
         }
 
         $trade_show_untreated = app('cache.config')->get('trade_show');
+
+        if($request->attributes->get('is_googlebot')){
+            $trade_show_untreated = app('cache.config')->get('trade_show_gb');
+        }
         $trade_show = [];
         if($trade_show_untreated){
             $trade_show = json_decode($trade_show_untreated,true);
@@ -43,13 +40,7 @@ class IndexController extends Controller
 
         $news = app(NewRepository::class)->newNews(3);
 
-        // 獲取首頁用戶計數
-        $userCount = \App\Services\ConfigService::get('index_user_count', '124344649');
-
-        // 成功案例
-        $successCases = \App\Models\SuccessCase::where('status', 1)->orderBy('sort', 'asc')->get();
-
-        return template('index',compact('products','faqs','for_people','trouble','trade_show','news','userCount','successCases'));
+        return template('index',compact('products','faqs','for_people','trouble','trade_show','news'));
     }
 
 }

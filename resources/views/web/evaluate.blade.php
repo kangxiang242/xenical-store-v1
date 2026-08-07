@@ -1,13 +1,8 @@
-@extends('web.layout')
+@extends('web::layout')
 
 @section('style')
     @parent
     <link rel="stylesheet" type="text/css" href="{{ asset('static/less/evaluate.css') }}?ver={{ config('app.asset_version') }}"/>
-    @if(isset($css) && $css)
-    <style type="text/css">
-        {!! $css !!}
-    </style>
-    @endif
     <style>
         blockquote{
             border-left: 5px solid rgba(0,0,0,.05);
@@ -52,217 +47,195 @@
 
 @section('script')
     @parent
-    <script src="{{ asset('static/js/xie.js') }}?ver={{ config('app.asset_version') }}"></script>
     <script src="{{ asset('static/js/jquery.leoTextAnimate.js') }}?ver={{ config('app.asset_version') }}"></script>
-    @if(!(strpos(strtolower(request()->userAgent()),'google') !== false))
     <script>
+        let lastDigits = ['?', '?', '?'];
+        function animateDigit(el, num, alwaysSpin = false) {
+            const digitHeight = 44;
+            const inner = el.querySelector('.digit-inner');
+            let targetIndex = num === '?' ? 0 : (parseInt(num, 10) + 1);
+            let currentTransform = inner.style.transform || 'translateY(0)';
+            let currentIndex = 0;
+            const match = currentTransform.match(/-([0-9]+)px/);
+            if (match) currentIndex = Math.round(parseInt(match[1], 10) / digitHeight);
 
-        function BMR(sex,weight,height,age){
-            if(sex == 1){
-                var bmr = (10*weight + 6.25*height - 5*age) + 5;
-            }else{
-                var bmr = (10*weight + 6.25*height - 5*age) - 161;
-            }
-            return Math.round(bmr);
+            if (!alwaysSpin && currentIndex === targetIndex) return;
+            let rounds = alwaysSpin ? 1 : 0;
+            let totalIndex = targetIndex + (rounds * 11);
+            inner.style.transition = 'none';
+            inner.style.transform = `translateY(0)`;
+            void inner.offsetWidth;
+            inner.style.transition = 'transform 1s ease-out';
+            inner.style.transform = `translateY(-${totalIndex * digitHeight}px)`;
         }
 
-        function TDEE(bmr,activityLevel){
-            var base = 0;
-            if(activityLevel == 1){
-                base = 1.2;
-            }else if(activityLevel == 2){
-                base = 1.357
-            }else if(activityLevel == 3){
-                base = 1.55
-            }else if(activityLevel == 4){
-                base = 1.725
-            }else if(activityLevel == 5){
-                base = 1.9
-            }
-            return Math.round(base*bmr);
+        function animateBMIDisplay(bmi) {
+            const fixedBMI = bmi.toFixed(1);
+            const [intPartRaw, decPartRaw] = fixedBMI.split('.');
+            const intPart = intPartRaw.padStart(2, '0');
+            const decPart = decPartRaw ? decPartRaw[0] : '0';
+            const digits = [intPart[0], intPart[1], '.', decPart];
+            const int1 = document.getElementById('int1');
+            const int2 = document.getElementById('int2');
+            const dec1 = document.getElementById('dec1');
+            animateDigit(int1, digits[0] || '0', false);
+            animateDigit(int2, digits[1] || '0', false);
+            animateDigit(dec1, digits[3] || '0', false);
+            lastDigits = [digits[0] || '0', digits[1] || '0', digits[3] || '0'];
         }
 
-        function BMI(height,weight){
-            return (weight/(height*height)*10000).toFixed(1);
-        }
+        
+        window.addEventListener('DOMContentLoaded', function() {
+            animateDigit(document.getElementById('int1'), '?');
+            animateDigit(document.getElementById('int2'), '?');
+            animateDigit(document.getElementById('dec1'), '?');
+            lastDigits = ['?', '?', '?'];
+        });
 
-        $('.count-btn a').click(function(){
-            var sex = $("input[name='sex']:checked").val();
-            var age = $("input[name='age']").val();
-            var height = $("input[name='height']").val();
-            var weight = $("input[name='weight']").val();
-            var activityLevel = $("input[name='activityLevel']:checked").val();
-            if(!age){
-                $("input[name='age']").focus();
-                promptError('計算失敗','請輸入您的年齡');
-                return false;
-            }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelector('.count').addEventListener('click', function () {
+                const height = parseFloat(document.getElementById('height').value);
+                const weight = parseFloat(document.getElementById('weight').value);
 
-            if(!$.isNumeric(age)){
-                $("input[name='age']").focus();
-                promptError('計算失敗','請輸入正確的年齡');
-                return false;
-            }
-
-            if(!height){
-                $("input[name='height']").focus();
-                promptError('計算失敗','請輸入您的身高');
-                return false;
-            }
-
-            if(!$.isNumeric(height)){
-                $("input[name='height']").focus();
-                promptError('計算失敗','請輸入正確的身高');
-                return false;
-            }
-
-            if(!weight){
-                $("input[name='weight']").focus();
-                promptError('計算失敗','請輸入您的體重');
-                return false;
-            }
-
-            if(!$.isNumeric(weight)){
-                $("input[name='weight']").focus();
-                promptError('計算失敗','請輸入正確的體重');
-                return false;
-            }
-            if($(this).attr('disabled')){
-                return false;
-            }
-
-
-            var bmr = BMR(sex,weight,height,age);
-            var tdee = TDEE(bmr,activityLevel);
-            var bmi = BMI(height,weight);
-
-            addLoadingActionBtn('.count-btn a');
-            $.ajax({
-                type: "POST",
-                url: "{{ url('compute') }}",
-                data: {sex:sex,age:age,height:height,weight:weight,activityLevel:activityLevel,bmr:bmr, tdee:tdee,bmi:bmi,_token:"{{ csrf_token() }}"},
-                dataType: "html",
-                success: function(data){
-                    $('#ending').html(data);
-                    closeLoadingActionBtn('.count-btn a');
-                    leoTextAnimateRun();
-                    window.dispatchEvent(new Event('xo:calc_complete'));
-                },
-                error:function(){
-                    closeLoadingActionBtn('.count-btn a');
-                    promptError('頻繁操作','請稍後再試');
-                    return false;
+                if (!height || !weight || height <= 0 || weight <= 0) {
+                    alert("請正確輸入身高與體重");
+                    return;
                 }
+
+                const bmi = weight / ((height / 100) ** 2);
+                animateBMIDisplay(bmi);
             });
 
-
-        })
-
-
-
-        function leoTextAnimateRun(){
-            $('#bmr-value').leoTextAnimate({delay: 500, autorun: true, fixed: ['', '', ''], start: '-'});
-            $('#tdee-value').leoTextAnimate({delay: 500, autorun: true, fixed: ['', '', ''], start: '-'});
-            $('#bmi-value').leoTextAnimate({delay: 500, autorun: true, fixed: ['', '', '.'], start: '-'});
-
-        }
-
-
+            document.querySelector('.reset').addEventListener('click', function () {
+                document.getElementById('height').value = '';
+                document.getElementById('weight').value = '';
+                animateDigit(document.getElementById('int1'), '?');
+                animateDigit(document.getElementById('int2'), '?');
+                animateDigit(document.getElementById('dec1'), '?');
+                lastDigits = ['?', '?', '?'];
+            });
+        });
     </script>
-    @endif
 @stop
 
-@section('breadcrumb')
-    <ul class="breadcrumb">
-        <li><a href="{{ url('/') }}">首頁</a></li>
 
-        <li class="active">瘦身計算機</li>
-    </ul>
-@stop
 
 @section('embed-banner')
-    <div class="embed-banner align-left wrapper">
+    <div class="embed-banner wrapper column">
+        <p class="en-title">{!! app('cache.config')->get('page_evaluate_title_en') !!}</p>
         <h1 class="embed-title">{!! app('cache.config')->get('page_evaluate_title') !!}</h1>
         <div class="embed-desc">{!! str_replace(PHP_EOL,'<br>',app('cache.config')->get('page_evaluate_desc')) !!}</div>
     </div>
 @stop
 
 @section('content')
-
-
-    <section class="evaluate-container" data-track-section="calc" data-track-section-view data-track-section-label="瘦身計算機">
-        <div class="evaluate-wrapper">
-
-            @if(!(strpos(strtolower(request()->userAgent()),'google') !== false))
-                <div class="evaluate-form">
-                    <div class="form-group">
-                        <p class="title">你的性別？</p>
-                        <div class="form-inline">
-                            <div class="radio-inline">
-                                <input type="radio" name="sex" value="2" checked id="sex1">
-                                <label for="sex1">女性</label>
-                            </div>
-                            <div class="radio-inline">
-                                <input type="radio" name="sex" value="1" id="sex2">
-                                <label for="sex2">男性</label>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <p class="title">你的年龄？</p>
-                        <input class="form-control" type="text" name="age" placeholder="">
-                    </div>
-                    <div class="form-group">
-                        <p class="title">你的身高（公分）？</p>
-                        <input class="form-control" type="text" name="height" placeholder="">
-                    </div>
-                    <div class="form-group">
-                        <p class="title">你的體重（公斤）？</p>
-                        <input class="form-control" type="text" name="weight" placeholder="">
-                    </div>
-
-                    <div class="form-group">
-                        <p class="title">每週的運動強度？</p>
-                        <div class="radio-row">
-                            <input id="qd1" type="radio" name="activityLevel" value="1" checked>
-                            <label for="qd1">久坐/沒在運動</label>
-                        </div>
-                        <div class="radio-row">
-                            <input id="qd2" type="radio" name="activityLevel" value="2">
-                            <label for="qd2">每週低強度運動／一週運動 1～3 天</label>
-                        </div>
-                        <div class="radio-row">
-                            <input id="qd3" type="radio" name="activityLevel" value="3">
-                            <label for="qd3">每週中等強度運動／一週運動 3～5 天</label>
-                        </div>
-                        <div class="radio-row">
-                            <input id="qd4" type="radio" name="activityLevel" value="4">
-                            <label for="qd4">每週高強運動/一個星期運動 5 ~ 7 天</label>
-                        </div>
-                        <div class="radio-row">
-                            <input id="qd5" type="radio" name="activityLevel" value="5">
-                            <label for="qd5">每天運動訓練 2 次、勞力工作者</label>
-                        </div>
-                    </div>
-                    <div class="count-btn" data-track-calc-start>
-                        <a class="btn-ef1" href="javascript:;">開始計算</a>
-                    </div>
+    <div class="editor">
+        {!! app('cache.config')->get('page_evaluate_article') !!}
+    </div>
+    <div class="evaluate-sec">
+        <div class="calculate">
+            <h2 class="sec-title">BMI計算器</h2>
+            <form class="evaluate-form">
+                <div class="form-group">
+                    <label class="form-title" for="height">請輸入你的身高：</label>
+                    <input class="form-control" type="number" id="height" name="height" placeholder="" inputmode="decimal">
+                    <span class="form-title">公分</span>
                 </div>
-            @endif
-
-
-            <div class="ending" id="ending">
-
-
-            </div>
-
-
-            <div class="editor">
-                {!! app('cache.config')->get('page_evaluate_article') !!}
-            </div>
-
-
+                <div class="form-group">
+                    <label class="form-title" for="weight">請輸入你的體重：</label>
+                    <input class="form-control" type="number" id="weight" name="weight" placeholder="" inputmode="decimal">
+                    <span class="form-title">公斤</span>
+                </div>
+                <div class="btns">
+                    <a class="reset" href="javascript:;">重設</a>
+                    <a class="count btn-ef1" href="javascript:;">開始計算</a>
+                </div>
+                <p class="privacy-note">本工具僅於瀏覽器端運算，不會傳送或儲存任何輸入資料。如需更多資訊，請參閱<a href="/privacy">隱私權政策</a>。</p>
+            </form>
         </div>
-    </section>
+        <div class="result">
+            <h2 class="sec-title">你的BMI結果</h2>
+            <p class="result-num">
+                <span class="digit" id="int1">
+                    <span class="digit-inner">
+                        <span>?</span><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+                    </span>
+                </span>
+                <span class="digit" id="int2">
+                    <span class="digit-inner">
+                        <span>?</span><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+                    </span>
+                </span>
+                <span class="dot">.</span>
+                <span class="digit" id="dec1">
+                    <span class="digit-inner">
+                        <span>?</span><span>0</span><span>1</span><span>2</span><span>3</span><span>4</span><span>5</span><span>6</span><span>7</span><span>8</span><span>9</span>
+                    </span>
+                </span>
+            </p>
+        </div>
+        <div class="comparison">
+            <h2 class="sec-title">BMI標準參照表</h2>
+            <table class="bmi-table">
+                <thead>
+                    <tr>
+                    <th>類別</th>
+                    <th>歐美BMI標準</th>
+                    <th>亞太區BMI標準</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr class="bmi-underweight">
+                    <td>過輕</td>
+                    <td>&lt;18.5</td>
+                    <td>&lt;18.5</td>
+                    </tr>
+                    <tr class="bmi-normal">
+                    <td>正常</td>
+                    <td>18.5-24.9</td>
+                    <td>18.5-22.9</td>
+                    </tr>
+                    <tr class="bmi-overweight">
+                    <td>過重</td>
+                    <td>25-29.9</td>
+                    <td>23-24.9</td>
+                    </tr>
+                    <tr class="bmi-obese">
+                    <td>肥胖</td>
+                    <td>&ge;30</td>
+                    <td>&ge;25</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+    
+    <div class="page-news">
+        <h2 class="sec-title">BMI知識分享閱讀</h2>
+        @foreach($news as $item)
+            <div class="item">
+                <a class="info" href="{{ url('news/'.$item->id) }}">
+                    <div class="Img"><img src="{{ asset('uploads/'.$item->img) }}" alt="{{ $item->title }}"></div>
+                    <div class="Txt">
+                        <div class="newsInfoIdxBox">
+                            <p class="newsDateBox">
+                                <span class="day">{{ $item->release_at->format('d') }}</span>
+                                <span class="ym">{{ $item->release_at->format('M') }}</span>
+                            </p>
+                            <h2 class="title">{{ $item->title }}</h2>
+                        </div>
+                        <p class="sub">
+                            {{ \Illuminate\Support\Str::limit($item->brief?$item->brief:strip_tags($item->content),680) }}
+                        </p>
+                        <span class="go">閱讀全文<i class="iconfont">&#xe684;</i></span>
+                    </div>
+                </a>
+            </div>
+        @endforeach
+    </div>
+
 @endsection
+@section('breadcrumb')
+    <li class="active">{!! app('cache.config')->get('page_evaluate_title') !!}</li>
+@stop
