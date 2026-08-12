@@ -144,7 +144,7 @@
 
     <div class="main-wrapper">
     @section('banner')
-        @if($layout['banners'] && !$layout['banners']->isEmpty())
+        @if(isset($layout['banners']) && $layout['banners'] && !$layout['banners']->isEmpty())
             <div class="banner-section">
                 <div class="banner-main">
                     @foreach($layout['banners'] as $key=>$item)
