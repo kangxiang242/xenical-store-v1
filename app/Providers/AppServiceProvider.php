@@ -24,5 +24,6 @@ class AppServiceProvider extends ServiceProvider
         Schema::defaultStringLength(191);
 
         View::addNamespace('web', resource_path('views/web'));
+        View::addNamespace('mobile', resource_path('views/mobile'));
     }
 }
